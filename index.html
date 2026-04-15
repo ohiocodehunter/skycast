@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkyCast — Weather</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+</head>
+<body class="theme-day">
+
+  <!-- Animated Background Canvas -->
+  <canvas id="bgCanvas"></canvas>
+
+  <!-- Background Gradient Layer -->
+  <div class="bg-gradient" id="bgGradient"></div>
+
+  <!-- Main App Container -->
+  <div class="app" id="app">
+
+    <!-- Search Bar -->
+    <div class="search-wrap" id="searchWrap">
+      <div class="search-bar glass">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search city…" autocomplete="off" spellcheck="false"/>
+        <button class="loc-btn" id="locBtn" title="Use my location">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2a7 7 0 0 1 7 7c0 5.25-7 13-7 13S5 14.25 5 9a7 7 0 0 1 7-7z"/>
+            <circle cx="12" cy="9" r="2.5"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loader-wrap" id="loaderWrap">
+      <div class="loader-ring"></div>
+      <p class="loader-text">Reading the skies…</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-wrap" id="errorWrap" style="display:none">
+      <div class="error-card glass">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="40" height="40">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <p id="errorMsg">Could not fetch weather data.</p>
+        <button class="retry-btn glass" id="retryBtn">Try Again</button>
+      </div>
+    </div>
+
+    <!-- Weather Content -->
+    <div class="weather-content" id="weatherContent" style="display:none">
+
+      <!-- Bear Section -->
+      <div class="bear-section" id="bearSection">
+        <div class="bear-container" id="bearContainer">
+
+          <!-- SVG Bear -->
+          <svg id="bearSvg" viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg">
+            <!-- Shadow -->
+            <ellipse cx="100" cy="232" rx="42" ry="8" fill="rgba(0,0,0,0.12)" id="bearShadow"/>
+
+            <!-- Body -->
+            <ellipse cx="100" cy="175" rx="46" ry="52" fill="#C8956C" id="bearBody"/>
+
+            <!-- Belly -->
+            <ellipse cx="100" cy="182" rx="28" ry="32" fill="#E8BFA0" id="bearBelly"/>
+
+            <!-- Left Arm (Normal) -->
+            <g id="leftArm">
+              <ellipse cx="58" cy="168" rx="14" ry="22" fill="#C8956C" transform="rotate(-15 58 168)"/>
+              <!-- Left hand -->
+              <circle cx="50" cy="186" r="10" fill="#C8956C"/>
+            </g>
+
+            <!-- Right Arm (Normal) -->
+            <g id="rightArm">
+              <ellipse cx="142" cy="168" rx="14" ry="22" fill="#C8956C" transform="rotate(15 142 168)"/>
+              <!-- Right hand -->
+              <circle cx="150" cy="186" r="10" fill="#C8956C"/>
+            </g>
+
+            <!-- Left Leg -->
+            <ellipse cx="82" cy="220" rx="16" ry="12" fill="#B07850"/>
+            <!-- Right Leg -->
+            <ellipse cx="118" cy="220" rx="16" ry="12" fill="#B07850"/>
+
+            <!-- Left foot -->
+            <ellipse cx="78" cy="228" rx="13" ry="8" fill="#9A6840"/>
+            <!-- Right foot -->
+            <ellipse cx="122" cy="228" rx="13" ry="8" fill="#9A6840"/>
+
+            <!-- Neck -->
+            <ellipse cx="100" cy="132" rx="20" ry="14" fill="#C8956C"/>
+
+            <!-- Head -->
+            <circle cx="100" cy="108" r="52" fill="#D4A078" id="bearHead"/>
+
+            <!-- Left ear -->
+            <circle cx="58" cy="70" r="18" fill="#C8956C"/>
+            <circle cx="58" cy="70" r="10" fill="#E8B090"/>
+            <!-- Right ear -->
+            <circle cx="142" cy="70" r="18" fill="#C8956C"/>
+            <circle cx="142" cy="70" r="10" fill="#E8B090"/>
+
+            <!-- Face -->
+            <!-- Eyes Group -->
+            <g id="bearEyes">
+              <!-- Left eye white -->
+              <ellipse cx="84" cy="104" rx="10" ry="11" fill="white"/>
+              <!-- Right eye white -->
+              <ellipse cx="116" cy="104" rx="10" ry="11" fill="white"/>
+              <!-- Left pupil -->
+              <circle cx="85" cy="105" r="6" fill="#2D1A0E" id="leftPupil"/>
+              <!-- Right pupil -->
+              <circle cx="117" cy="105" r="6" fill="#2D1A0E" id="rightPupil"/>
+              <!-- Left shine -->
+              <circle cx="87" cy="103" r="2" fill="white"/>
+              <!-- Right shine -->
+              <circle cx="119" cy="103" r="2" fill="white"/>
+              <!-- Left blink lid -->
+              <ellipse cx="84" cy="104" rx="10" ry="11" fill="#D4A078" id="leftBlink" style="transform-origin:84px 104px; transform:scaleY(0)"/>
+              <!-- Right blink lid -->
+              <ellipse cx="116" cy="104" rx="10" ry="11" fill="#D4A078" id="rightBlink" style="transform-origin:116px 104px; transform:scaleY(0)"/>
+            </g>
+
+            <!-- Nose -->
+            <ellipse cx="100" cy="120" rx="12" ry="9" fill="#8B5E3C"/>
+            <ellipse cx="100" cy="118" rx="7" ry="5" fill="#6B3E20"/>
+
+            <!-- Mouth - Happy (default) -->
+            <g id="mouthHappy">
+              <path d="M 90 128 Q 100 138 110 128" stroke="#6B3E20" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            </g>
+            <!-- Mouth - Sad -->
+            <g id="mouthSad" style="display:none">
+              <path d="M 90 134 Q 100 126 110 134" stroke="#6B3E20" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            </g>
+            <!-- Mouth - Surprised (cold) -->
+            <g id="mouthSurprised" style="display:none">
+              <ellipse cx="100" cy="132" rx="6" ry="5" fill="#6B3E20"/>
+            </g>
+
+            <!-- Eyebrows - Normal -->
+            <g id="browsNormal">
+              <path d="M 76 93 Q 84 89 92 93" stroke="#8B5E3C" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+              <path d="M 108 93 Q 116 89 124 93" stroke="#8B5E3C" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            </g>
+            <!-- Eyebrows - Worried -->
+            <g id="browsWorried" style="display:none">
+              <path d="M 76 91 Q 84 95 92 91" stroke="#8B5E3C" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+              <path d="M 108 91 Q 116 95 124 91" stroke="#8B5E3C" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            </g>
+
+            <!-- Cheeks -->
+            <circle cx="72" cy="118" r="10" fill="rgba(255,150,100,0.3)" id="cheekL"/>
+            <circle cx="128" cy="118" r="10" fill="rgba(255,150,100,0.3)" id="cheekR"/>
+
+            <!-- Umbrella (hidden by default) -->
+            <g id="umbrella" style="display:none">
+              <!-- Handle -->
+              <path d="M 152 100 Q 170 200 155 210 Q 145 218 142 205" stroke="#5B7FBB" stroke-width="5" fill="none" stroke-linecap="round"/>
+              <!-- Canopy arc -->
+              <path d="M 115 100 Q 140 55 165 100" fill="#5B7FBB"/>
+              <path d="M 115 100 Q 127 75 140 100" fill="#7B9FDB"/>
+              <path d="M 140 100 Q 152 75 165 100" fill="#7B9FDB"/>
+              <!-- Ribs -->
+              <line x1="115" y1="100" x2="140" y2="58" stroke="#4A6EAA" stroke-width="1.5"/>
+              <line x1="165" y1="100" x2="140" y2="58" stroke="#4A6EAA" stroke-width="1.5"/>
+              <line x1="140" y1="100" x2="140" y2="58" stroke="#4A6EAA" stroke-width="1.5"/>
+            </g>
+
+            <!-- Scarf (hidden by default, shown when cold) -->
+            <g id="scarf" style="display:none">
+              <ellipse cx="100" cy="138" rx="26" ry="10" fill="#E84D4D"/>
+              <ellipse cx="100" cy="133" rx="26" ry="10" fill="#FF6B6B"/>
+              <rect x="85" y="140" width="12" height="20" rx="4" fill="#FF6B6B"/>
+              <rect x="93" y="145" width="10" height="18" rx="4" fill="#E84D4D"/>
+            </g>
+
+            <!-- Snowflake decorations (cold, hidden by default) -->
+            <g id="snowflakes" style="display:none">
+              <text x="28" y="90" font-size="16" fill="rgba(150,200,255,0.8)">❄</text>
+              <text x="160" y="80" font-size="12" fill="rgba(150,200,255,0.7)">❄</text>
+              <text x="168" y="130" font-size="10" fill="rgba(150,200,255,0.6)">❄</text>
+            </g>
+
+            <!-- Sun rays (sunny, hidden by default) -->
+            <g id="sunRays" style="display:none">
+              <circle cx="40" cy="60" r="16" fill="rgba(255,210,60,0.85)"/>
+              <circle cx="40" cy="60" r="10" fill="rgba(255,230,80,1)"/>
+              <line x1="40" y1="38" x2="40" y2="30" stroke="rgba(255,210,60,0.8)" stroke-width="3" stroke-linecap="round"/>
+              <line x1="40" y1="82" x2="40" y2="90" stroke="rgba(255,210,60,0.8)" stroke-width="3" stroke-linecap="round"/>
+              <line x1="18" y1="60" x2="10" y2="60" stroke="rgba(255,210,60,0.8)" stroke-width="3" stroke-linecap="round"/>
+              <line x1="62" y1="60" x2="70" y2="60" stroke="rgba(255,210,60,0.8)" stroke-width="3" stroke-linecap="round"/>
+              <line x1="24" y1="44" x2="18" y2="38" stroke="rgba(255,210,60,0.8)" stroke-width="3" stroke-linecap="round"/>
+              <line x1="56" y1="76" x2="62" y2="82" stroke="rgba(255,210,60,0.8)" stroke-width="3" stroke-linecap="round"/>
+              <line x1="56" y1="44" x2="62" y2="38" stroke="rgba(255,210,60,0.8)" stroke-width="3" stroke-linecap="round"/>
+              <line x1="24" y1="76" x2="18" y2="82" stroke="rgba(255,210,60,0.8)" stroke-width="3" stroke-linecap="round"/>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Bear Speech Bubble -->
+        <div class="bear-bubble glass" id="bearBubble">
+          <p id="bearMessage">Hello! Let me check the weather for you…</p>
+        </div>
+      </div>
+
+      <!-- Current Weather Card -->
+      <div class="current-card glass" id="currentCard">
+        <div class="city-row">
+          <div>
+            <h1 class="city-name" id="cityName">—</h1>
+            <p class="date-time" id="dateTime">—</p>
+          </div>
+          <img class="condition-icon" id="conditionIcon" src="" alt="" />
+        </div>
+        <div class="temp-row">
+          <span class="big-temp" id="bigTemp">—</span>
+          <div class="condition-info">
+            <p class="condition-text" id="conditionText">—</p>
+            <p class="feels-like" id="feelsLike">Feels like —</p>
+          </div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-chip glass">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4v4a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"/><path d="M12 14v8"/></svg>
+            <span id="humidity">—%</span>
+            <label>Humidity</label>
+          </div>
+          <div class="stat-chip glass">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>
+            <span id="windSpeed">— km/h</span>
+            <label>Wind</label>
+          </div>
+          <div class="stat-chip glass">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            <span id="uvIndex">UV —</span>
+            <label>UV Index</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hourly Forecast -->
+      <div class="section-title">Hourly Forecast</div>
+      <div class="hourly-track" id="hourlyTrack">
+        <!-- populated by JS -->
+      </div>
+
+      <!-- 7-Day Forecast -->
+      <div class="section-title">7-Day Forecast</div>
+      <div class="weekly-list" id="weeklyList">
+        <!-- populated by JS -->
+      </div>
+
+    </div>
+    <!-- /weather-content dynamic add here from js -->
+
+  </div>
+  <!-- /app -->
+
+  <script src="script.js"></script>
+</body>
+</html>
